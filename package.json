@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "node ./index.js"
+    "test": "node ./"
   },
   "keywords": [],
   "author": "",
