@@ -1,0 +1,16 @@
+{
+  "name": "firstserver",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "engines": {
+    "node" : "18.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
