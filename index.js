@@ -10,7 +10,7 @@ import path from 'path';
 //Un ambito es un bloque de codigo, las variables se ejecutaran dentro de un ambito y ya
 //Bloque global solo en casos especiales
 global["__dirname"] = path.dirname(new URL(import.meta.url).pathname);
-global["__filename"] = path.basename(new URL(import.meta.url).pathname);
+global["__filename"] = path.join(__dirname, path.basename(new URL(import.meta.url).pathname));
 
 
 //2.- Crear el servidor
