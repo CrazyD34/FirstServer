@@ -4,11 +4,12 @@
   "description": "",
   "type": "module",
   "engines": {
-    "node" : "18.x"
+    "node" : "18.x",
+    "npm": "9.x"
   },
   "main": "index.js",
   "scripts": {
-    "test": "node ./"
+    "start": "node ./"
   },
   "keywords": [],
   "author": "",
