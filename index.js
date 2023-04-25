@@ -21,10 +21,17 @@ const server = http.createServer( (request,response) => {
     //1.-Respondiendo al cliente
     //response._write("Hello from the server 🎉");
     //Variables default
-    //En que directorio estoy
-    response.write(`__dirname:${__dirname} -
-    __filename:${__filename}`);
-    //El archivo actual?
+    //En que directorio estoy metodo que response al cliente
+    //Creando un logger de peticiones
+    console.log(`📢Re;Quest ${request.method} ${request.url}`)
+    response.setHeader('Content-Type', 'text/html');
+    response.write("<html>");
+    response.write("<head> </head>");
+    response.write("<title>My App</title>");
+    response.write("<body> <h1> Hello from my server... </h1> </body>");
+    response.write("</html>");
+    console.log(`📢Contestando recurso: ${request.method} ${request.url}`)
+    console.log("Cerando la conexion...");
     //2.-Cerrar la conexion
     response.end();
 } );
