@@ -1,17 +1,21 @@
-import http from "http";
 //1,. Se importa el Fs como promesa y la ruta, con un dirname que declara una ruta
+//Importacion de librerias node
+import http from "http";
 import path from "path";
 import {promises as fs} from "fs";
+//Bloques globales built-in variables
 global["__dirname"] = path.dirname(new URL(import.meta.url).pathname);
 
-
+//request / response
 const server = http.createServer(async (req, res) => {
-  // Desestructurando de "req"
+  // Desestructurando de "req" o request
+  //es una "propiedad del request"
   let { url, method } = req;
-
   console.log(`📣 CLIENT-REQUEST: ${req.url} ${req.method}`);
 
+
   // Enrutando peticiones
+  //Peticion raiz
   switch (url) {
     case '/':
       // Peticion raiz
@@ -67,6 +71,8 @@ const server = http.createServer(async (req, res) => {
         <h2> Ingresa un mensaje </h2>
         <div>
           <form action="/message" method="POST">
+          <!--Aqui esta el nombre del parametro, este sera utilizado en los demas casos, si el nombre fuera mensaje,
+          parsedParams.message pasaria a parsedParams.mensaje-->
           <input type="text" name="message">
           <button type="submit"> Enviar </button>
           </form>
@@ -80,6 +86,8 @@ const server = http.createServer(async (req, res) => {
       // Cerrando la comunicacion
       res.end();
       break;
+
+    //Peticion Autor
     case '/author':
         res.setHeader('Content-Type', 'text/html');
         //
@@ -101,6 +109,8 @@ const server = http.createServer(async (req, res) => {
         res.statusCode = 200;
         res.end();
     break;
+
+    //Peticion del icono en la pestaña
     case "/favicon.ico":
       // Especificar la ubicación del archivo de icono
       const faviconPath = path.join(__dirname, 'favicon.ico');
@@ -134,9 +144,12 @@ const server = http.createServer(async (req, res) => {
         res.end();
       }
     break;
-      //Agregando un BackEnd y un Endpoint para enviar informacion
+
+    //Peticion mensaje
+    //Agregando un BackEnd y un Endpoint para enviar informacion
     case "/message":
       // Verificando si es post
+      //La barra de navegacion siempre pide un metodo GET
       if (method === "POST") {
 		  // Se crea una variable para almacenar los datos del cliente
       let body = "";
@@ -144,67 +157,45 @@ const server = http.createServer(async (req, res) => {
 		  // Se registra un manejador de evento para la recepción de datos
       req.on("data", (data => {
       body += data;
+      //---Si la informacion supera cierta longitud destruye la conexion.---
       if (body.length > 1e6) return req.socket.destroy();
       }));
       ///------------
 		  // Se registra una manejador de eventos para el termino de recepción de datos
-      req.on("end", () => {
+      req.on("end", async () => {
       // Procesa el formulario
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "text/html");
+       //Antes de escribir una respuesta (res.write) hay que establecer el tipo de contenido
 			// Mediante URLSearchParams se extraen los campos del formulario
       const params = new URLSearchParams(body);
 			// Se construye un objeto a partir de los datos en la variable params
       const parsedParams = Object.fromEntries(params);
-      res.write(`
-      <html>
-        <head>
-          <link rel="icon" type="image/x-icon" sizes="32x32" href="/favicon.ico">
-          <title>My App</title>
-          <style>
-            body{
-              background-color: #f9f9f9;
-              font-family: Arial, sans-serif;
-            }
-            h1{
-              color: #e74c3c;
-              font-size: 48px;
-              margin-top: 50px;
-              text-align: center;
-            }
-            p{
-              font-size: 24px;
-              color: #7f8c8d;
-              text-align:center;
-              margin-top: 20px;
-            }
-            .error-message{
-              font-size: 18px;
-              color: #95a5a6;
-              text-align:center;
-              margin-top: 20px;
-            }
-          </style>
-        </head>
-        <body>
-          <h1 style="color: #333">SERVER MESSAGE RECIEVED &#128172</h1>
-          <p>${parsedParams.message}</p>
-        </body>
-      </html>
-      `);
-			// Se termina la conexion
+
+      //---Almacenar un valor en un archivo
+      //Se utiliza una libreria fs, si no le pongo una ruta absoluta lo va a crear en el lugar donde este el index
+      //Espera a que se haga esta peticion, por el async await
+      //--Le quitamos el await
+      fs.writeFile('message.txt',parsedParams.message);
+    });
+      //Estableciendo una respuesta
+      //El estado 302 es un estado de redireccionamiento
+      res.statusCode = 302;
+      //Especificando el redireccionamiento
+      //Cuando se establece un redireccionamiento el header debe ser Location y el segundo parametro es a donde va.
+      res.setHeader('Location','/');
+      // Se termina la conexion y el redireccionamiento
       return res.end();
-     });
-     }
-     //En caso que no exista en endpoint se muestra el error 404 
-     else 
-     {
-      res.statusCode = 404;
-      res.write("404: Endpoint no encontrado")
-      res.end();
-     }
-  break;
-  default:
+      }
+      //En caso que no exista en endpoint se muestra el error 404 
+      else 
+      {
+        res.statusCode = 404;
+        res.write("404: Endpoint no encontrado")
+        res.end();
+      }
+      break;
+
+    //Peticion default
+    default:
       // Peticion raiz
       // Estableciendo cabeceras
       res.setHeader('Content-Type', 'text/html');
@@ -230,6 +221,10 @@ const server = http.createServer(async (req, res) => {
   }
 }); 
 
+//El servidor escucha las peticiones en el puerto 3000, la IP default y un callback que muestra en consola
+//Que se esta escuchando
 server.listen(3000, "0.0.0.0", () => {
   console.log("👩‍🍳 Servidor escuchando en http://localhost:3000"); 
 });
+
+//Un redireccionamiento es decirle al frontend enviarme a una pagina del mismo dominio
